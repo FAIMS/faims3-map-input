@@ -1,5 +1,5 @@
 {
-  "name": "faims3-map-input",
+  "name": "@faims-project/faims3-map-input",
   "version": "1.0.0",
   "description": "Map based input widget for FAIMS3",
   "author": "stevecassidy",
