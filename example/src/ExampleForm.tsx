@@ -8,13 +8,16 @@ import './ExampleForm.css'
 const ExampleForm = () => {
 
   const center = [151.21409960967713,-33.85543752567224]
+  const geoTiffNoProjection = '/tif1.tif'
+  const geoTiffProjection = 'EPSG:28354'
+  const geoTiffURL = '/TCI.tif'
 
   return (
       <Formik
-        initialValues={{ point: {}, polygon: {}, linestring: {} }}
+        initialValues={{ point: {}, polygon: {}, gtlinestring: {}, linestring: {} }}
         onSubmit={(values: any, actions: any) => {
             console.log(values)
-            actions.setSubmitting(false);
+            actions.setSubmitting(false)
         }}
       >
         {(formProps) => (
@@ -24,9 +27,20 @@ const ExampleForm = () => {
           <Form>
             <Field name="point" center={center} featureType="Point" component={MapFormField} />
 
-            <Field name="polygon" zoom={10} featureType="Polygon" component={MapFormField} />
+            <Field name="polygon" 
+                label="Polygon GeoTiff no Projection"
+                geoTiff={geoTiffNoProjection}
+                projection={geoTiffProjection}
+                featureType="Polygon" 
+                component={MapFormField} />
 
-            <Field name="linestring" featureType="LineString" component={MapFormField} />
+            <Field name="linestring"  featureType="LineString" component={MapFormField} />
+
+            <Field name="gtlinestring" 
+                   label="Get Linestring with Geotiff" 
+                   geoTiff={geoTiffURL}
+                   center={center}
+                   featureType="LineString" component={MapFormField} />
 
             <Button variant='contained' color='primary' type="submit">Submit</Button>
           </Form>
