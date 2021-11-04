@@ -21,7 +21,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 
 // openlayers
 import Map from 'ol/Map'
-import View, { ViewOptions } from 'ol/View'
+import View from 'ol/View'
 import TileLayer from 'ol/layer/Tile'
 import WebGLTileLayer from 'ol/layer/WebGLTile'
 import GeoTIFF from 'ol/source/GeoTIFF'
