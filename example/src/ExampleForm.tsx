@@ -10,7 +10,7 @@ const ExampleForm = () => {
   const center = [151.21409960967713,-33.85543752567224]
   const geoTiffNoProjection = '/tif1.tif'
   const geoTiffProjection = 'EPSG:28354'
-  const geoTiffURL = '/TCI.tif'
+  const geoTiffURL = 'https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/2020/S2A_36QWD_20200701_0_L2A/TCI.tif'
 
   const value = {
     "type": "FeatureCollection",
