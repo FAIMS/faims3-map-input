@@ -15,6 +15,7 @@ const ExampleForm = () => {
   return (
       <Formik
         initialValues={{ point: {}, polygon: {}, gtlinestring: {}, linestring: {} }}
+
         onSubmit={(values: any, actions: any) => {
             console.log(values)
             actions.setSubmitting(false)
