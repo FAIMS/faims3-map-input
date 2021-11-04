@@ -8,7 +8,7 @@ import './ExampleForm.css'
 const ExampleForm = () => {
 
   const center = [151.21409960967713,-33.85543752567224]
-  const geoTiffNoProjection = '/tif1.tif'
+  const geoTiffNoProjection = process.env.PUBLIC_URL + '/tif1.tif'
   const geoTiffProjection = 'EPSG:28354'
   const geoTiffURL = 'https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/2020/S2A_36QWD_20200701_0_L2A/TCI.tif'
 
@@ -55,14 +55,17 @@ const ExampleForm = () => {
                 projection={geoTiffProjection}
                 featureType="Polygon" 
                 component={MapFormField} />
+            <p>Linestring, no center defined.</p>
+            <Field name="linestring"  featureType="LineString" component={MapFormField} />
 
-            <p>Linestring with no center, uses current location</p>
+            <p>Linestring, basemap from remote URL, basemap defines projection, center defined.</p>
             <Field name="gtlinestring" 
                    label="Get Linestring with Geotiff" 
                    geoTiff={geoTiffURL}
                    center={center}
                    featureType="LineString" component={MapFormField} />
-            <p></p>
+
+
             <Button variant='contained' color='primary' type="submit">Submit</Button>
 
 
