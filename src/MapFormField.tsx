@@ -29,7 +29,10 @@ import { Plugins } from '@capacitor/core'
 const { Geolocation } = Plugins
 
 interface MapFieldProps extends FieldProps {
+  label?: string
   featureType: 'Point' | 'Polygon' | 'LineString'
+  geoTiff?: string
+  projection?: string
   center?: Array<number>
   zoom?: number
 }
@@ -47,6 +50,10 @@ function MapFormField({ field, form, ...props }: MapFieldProps) {
 
   if (!props.zoom) {
     props.zoom = 14
+  }
+
+  if (!props.label) {
+    props.label = `Get ${props.featureType}`
   }
 
   const mapCallback = (theFeatures: any) => {
@@ -77,6 +84,8 @@ function MapFormField({ field, form, ...props }: MapFieldProps) {
           zoom={props.zoom}
           center={center}
           callbackFn={mapCallback}
+          geoTiff={props.geoTiff}
+          projection={props.projection}
         />
       </div>
     )
@@ -88,7 +97,7 @@ function MapFormField({ field, form, ...props }: MapFieldProps) {
           className='map-button'
           onClick={() => setShowMap(true)}
         >
-          Get {props.featureType}
+          {props.label}
         </Button>
       </div>
     )
