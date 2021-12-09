@@ -42,6 +42,8 @@ import GeoJSON from 'ol/format/GeoJSON'
 // TODO: we need to have a better way to include a useful set or allow 
 // them to be defined by a project
 // e.g. https://www.npmjs.com/package/epsg-index
+// or maybe https://github.com/matafokka/geotiff-geokeys-to-proj4 allows us 
+// to get things from the image? 
 proj4.defs('EPSG:32636', '+proj=utm +zone=36 +datum=WGS84 +units=m +no_defs')
 proj4.defs(
   'EPSG:28354',
