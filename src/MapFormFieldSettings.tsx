@@ -34,7 +34,7 @@ export const MapFieldUISpec = {
     zoom: 12,
     label: '',
     FormLabelProps: {
-      children: 'Select from Map'
+      children: ''
     }
   },
   validationSchema: [['yup.string']],
@@ -100,11 +100,15 @@ export const MapFieldUISetting = (defaultSetting: ProjectUIModel) => {
     initialValue: 12
   }
 
-  newuiSetting['views']['FormParamater']['fields'] = ['featureType', 'zoom']
+  newuiSetting['views']['FormParamater']['fields'] = [
+    'label',
+    'featureType',
+    'zoom'
+  ]
 
   newuiSetting['viewsets'] = {
     settings: {
-      views: ['FormLabelProps', 'FormParamater'],
+      views: ['FormParamater'],
       label: 'settings'
     }
   }

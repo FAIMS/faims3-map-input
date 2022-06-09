@@ -32,6 +32,7 @@ export interface MapFieldProps extends FieldProps {
   center?: Array<number>
   zoom?: number
   label?: string
+  FormLabelProps?: any
 }
 
 export function MapFormField({
@@ -119,6 +120,7 @@ export function MapFormField({
       </div>
     )
   } else {
+    console.log('Map button props', props)
     return (
       <div>
         <Button
@@ -134,3 +136,4 @@ export function MapFormField({
   }
 }
 
+//
