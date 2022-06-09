@@ -31,7 +31,7 @@ import OSM from 'ol/source/OSM'
 import { Feature } from 'ol'
 import { transform } from 'ol/proj'
 
-import Button, { ButtonProps } from '@material-ui/core/Button'
+import Button, { ButtonProps } from '@mui/material/Button'
 import GeoJSON from 'ol/format/GeoJSON'
 
 export type FeaturesType = Feature<any>[] | undefined

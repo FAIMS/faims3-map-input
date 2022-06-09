@@ -2,7 +2,7 @@
 import React from 'react';
 import { Field, Form, Formik } from 'formik';
 import {MapFormField} from 'faims3-map-input'
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 import './ExampleForm.css'
 
 const ExampleForm = () => {

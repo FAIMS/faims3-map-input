@@ -21,10 +21,9 @@
 import React, { useState } from 'react'
 import './MapFormField.css'
 import MapWrapper from './MapWrapper'
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 
-import { Plugins } from '@capacitor/core'
-const { Geolocation } = Plugins
+import { Geolocation } from '@capacitor/geolocation'
 import type { GeoJSONFeatureCollection } from 'ol/format/GeoJSON'
 
 import { FieldProps } from 'formik'
