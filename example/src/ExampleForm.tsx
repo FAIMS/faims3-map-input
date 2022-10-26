@@ -9,9 +9,26 @@ const ExampleForm = () => {
 
   const center = [151.21409960967713,-33.85543752567224]
 
+  const value = {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            151.2123170963103,
+            -33.85179701635804
+          ]
+        },
+        "properties": null
+      }
+    ]
+  }
+
   return (
       <Formik
-        initialValues={{ point: {}, polygon: {}, linestring: {} }}
+        initialValues={{ point: {}, polygon: {}, linestring: {}, sample: value}}
         onSubmit={(values: any, actions: any) => {
             console.log(values)
             actions.setSubmitting(false);
@@ -34,6 +51,11 @@ const ExampleForm = () => {
             <Field name="linestring" featureType="LineString" component={MapFormField} />
             <p></p>
             <Button variant='contained' color='primary' type="submit">Submit</Button>
+
+
+            <Field label="Sample Data" name="sample" center={center} component={MapFormField} />
+
+
           </Form>
 
             </div>
