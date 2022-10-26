@@ -21,8 +21,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 
 // openlayers
 import Map from 'ol/Map'
-import View from 'ol/View'
+import View, { ViewOptions } from 'ol/View'
 import TileLayer from 'ol/layer/Tile'
+import WebGLTileLayer from 'ol/layer/WebGLTile'
+import GeoTIFF from 'ol/source/GeoTIFF'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style'
@@ -30,13 +32,29 @@ import { Draw, Modify } from 'ol/interaction'
 import OSM from 'ol/source/OSM'
 import { Feature } from 'ol'
 import { transform } from 'ol/proj'
-
+import proj4 from 'proj4';
+import { register } from 'ol/proj/proj4'
 import Button, { ButtonProps } from '@mui/material/Button'
 import GeoJSON from 'ol/format/GeoJSON'
 
-export type FeaturesType = Feature<any>[] | undefined
-export interface MapProps extends ButtonProps {
+
+// define some EPSG codes - these are for two sample images
+// TODO: we need to have a better way to include a useful set or allow 
+// them to be defined by a project
+// e.g. https://www.npmjs.com/package/epsg-index
+proj4.defs('EPSG:32636', '+proj=utm +zone=36 +datum=WGS84 +units=m +no_defs')
+proj4.defs(
+  'EPSG:28354',
+  '+proj=utm +zone=54 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
+)
+register(proj4)
+
+
+type FeaturesType = Feature<any>[] | undefined
+interface MapProps extends ButtonProps {
   features: any
+  geoTiff?: string
+  projection?: string
   featureType: 'Point' | 'Polygon' | 'LineString'
   zoom: number
   center: Array<number>
@@ -70,7 +88,7 @@ function MapWrapper(props: MapProps) {
   const [map, setMap] = useState<Map | undefined>()
   const [featuresLayer, setFeaturesLayer] =
     useState<VectorLayer<VectorSource<any>>>()
-
+  const defaultMapProjection = 'EPSG:3857'
   const gjson = new GeoJSON()
 
   // pull refs
@@ -82,21 +100,48 @@ function MapWrapper(props: MapProps) {
   mapRef.current = map
 
   const createMap = useCallback(
-    (element: HTMLElement, props: MapProps): Map => {
-      const mapProjection = 'EPSG:3857'
-      const center = transform(props.center, 'EPSG:4326', mapProjection)
+    async (element: HTMLElement, props: MapProps): Promise<Map> => {
+      const center = transform(
+        props.center,
+        'EPSG:4326',
+        props.projection || defaultMapProjection
+      )
+      let tileLayer: TileLayer<any>
+      let view: View
+
+      if (props.geoTiff) {
+        const geoTIFFSource = new GeoTIFF({
+          sources: [
+            {
+              url: props.geoTiff
+            }
+          ],
+          convertToRGB: true
+        })
+        tileLayer = new WebGLTileLayer({ source: geoTIFFSource })
+        const viewOptions = await geoTIFFSource.getView()
+        // if the geoTiff doesn't have projection info we 
+        // need to set it from the props or it will default to EPSG:3857
+        // can't see a way to test the geoTIFF image so we just set the
+        // projection if it has been passed in via the props
+        if (props.projection) {
+          view = new View({ ...viewOptions, projection: props.projection })
+        } else {
+          view = new View(viewOptions)
+        }
+      } else {
+        tileLayer = new TileLayer({ source: new OSM() })
+        view = new View({
+          projection: props.projection || defaultMapProjection,
+          center: center,
+          zoom: props.zoom
+        })
+      }
 
       const theMap = new Map({
         target: element,
-        layers: [
-          new TileLayer({ source: new OSM() })
-          // featuresLayer
-        ],
-        view: new View({
-          projection: mapProjection,
-          center: center,
-          zoom: props.zoom
-        }),
+        layers: [tileLayer],
+        view: view,
         controls: []
       })
 
@@ -138,7 +183,6 @@ function MapWrapper(props: MapProps) {
           dataProjection: 'EPSG:4326',
           featureProjection: map.getView().getProjection()
         })
-
         source.addFeatures(parsedFeatures)
 
         // set the view so that we can see the features
@@ -176,9 +220,10 @@ function MapWrapper(props: MapProps) {
       // create and add vector source layer containing the passed in features
       if (mapElement.current) {
         // create map
-        const initialMap = createMap(mapElement.current, props)
-        addDrawInteraction(initialMap, props)
-        setMap(initialMap)
+        createMap(mapElement.current, props).then((theMap: Map) => {
+          addDrawInteraction(theMap, props)
+          setMap(theMap)
+        })
       }
     }
   }, [map, createMap, addDrawInteraction, props])
@@ -188,21 +233,11 @@ function MapWrapper(props: MapProps) {
       const features = featuresLayer.getSource().getFeatures()
 
       if (map) {
-        const transFeatures: Array<Feature<any>> = []
-        features.forEach((feature) => {
-          const geometry = feature
-            .getGeometry()
-            .clone()
-            .transform(map.getView().getProjection(), 'EPSG:4326')
-          const newFeature = feature.clone()
-          newFeature.setGeometry(geometry)
-          transFeatures.push(newFeature)
+        const geojFeatures = gjson.writeFeaturesObject(features, {
+          featureProjection: map.getView().getProjection(),
+          dataProjection: 'EPSG:4326',
+          rightHanded: true
         })
-        const geojFeatures: GeoJSONFeatureCollection =
-          gjson.writeFeaturesObject(transFeatures, {
-            dataProjection: 'EPSG:4326',
-            rightHanded: true
-          })
 
         props.callbackFn(geojFeatures)
         featuresLayer.getSource().clear()
