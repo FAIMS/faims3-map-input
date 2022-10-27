@@ -15,5 +15,6 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - run: yarn install
+      - run: yarn install react ^17.0.2
       - name: Run tests
         run: yarn run test

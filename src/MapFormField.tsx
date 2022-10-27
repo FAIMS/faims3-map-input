@@ -126,7 +126,6 @@ export function MapFormField({
       </div>
     )
   } else {
-
     return (
       <div>
         <Button
