@@ -68,8 +68,6 @@ export function MapFormField({
     props.featureType = 'Point'
   }
 
-
-
   if (!props.label) {
     props.label = `Get ${props.featureType}`
   }
@@ -92,7 +90,7 @@ export function MapFormField({
   }
 
   let valueText = ''
-  if (drawnFeatures.features) {
+  if (drawnFeatures.features && drawnFeatures.features.length > 0) {
     const geom = drawnFeatures.features[0].geometry
     switch (geom.type) {
       case 'Point':
@@ -128,7 +126,7 @@ export function MapFormField({
       </div>
     )
   } else {
-    console.log('Map button props', props)
+
     return (
       <div>
         <Button

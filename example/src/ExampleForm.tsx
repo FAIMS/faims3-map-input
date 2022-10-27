@@ -9,8 +9,12 @@ const ExampleForm = () => {
 
   const center = [151.21409960967713,-33.85543752567224]
   const geoTiffNoProjection = process.env.PUBLIC_URL + '/tif1.tif'
-  const geoTiffProjection = 'EPSG:28354'
-  const geoTiffURL = 'https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/2020/S2A_36QWD_20200701_0_L2A/TCI.tif'
+  const geoTiffProjection = 'WGS84'
+  const geoTiffURL = '/preCamera_Comp.tif'
+  const geoTiffCenter = [
+    50.98269676858489,
+    -85.55335201680444
+  ];
 
   const value = {
     "type": "FeatureCollection",
@@ -62,7 +66,7 @@ const ExampleForm = () => {
             <Field name="gtlinestring" 
                    label="Get Linestring with Geotiff" 
                    geoTiff={geoTiffURL}
-                   center={center}
+                   center={geoTiffCenter}
                    featureType="LineString" component={MapFormField} />
 
 
