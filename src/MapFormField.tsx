@@ -28,10 +28,12 @@ import type { GeoJSONFeatureCollection } from 'ol/format/GeoJSON'
 
 import { FieldProps } from 'formik'
 export interface MapFieldProps extends FieldProps {
+  label?: string
   featureType: 'Point' | 'Polygon' | 'LineString'
+  geoTiff?: string
+  projection?: string
   center?: Array<number>
   zoom?: number
-  label?: string
   FormLabelProps?: any
 }
 
@@ -66,7 +68,9 @@ export function MapFormField({
     props.featureType = 'Point'
   }
 
-
+  if (!props.label) {
+    props.label = `Get ${props.featureType}`
+  }
 
   const mapCallback = (theFeatures: GeoJSONFeatureCollection) => {
     setDrawnFeatures(theFeatures)
@@ -86,7 +90,7 @@ export function MapFormField({
   }
 
   let valueText = ''
-  if (drawnFeatures.features) {
+  if (drawnFeatures.features && drawnFeatures.features.length > 0) {
     const geom = drawnFeatures.features[0].geometry
     switch (geom.type) {
       case 'Point':
@@ -116,11 +120,12 @@ export function MapFormField({
           zoom={props.zoom}
           center={center}
           callbackFn={mapCallback}
+          geoTiff={props.geoTiff}
+          projection={props.projection}
         />
       </div>
     )
   } else {
-    console.log('Map button props', props)
     return (
       <div>
         <Button
