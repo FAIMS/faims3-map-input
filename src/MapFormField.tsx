@@ -42,8 +42,6 @@ export function MapFormField({
   form,
   ...props
 }: MapFieldProps): JSX.Element {
-  const [showMap, setShowMap] = useState(false)
-
   // get previous form state if available
   let initialFeatures = {}
   if (form.values[field.name]) {
@@ -74,19 +72,14 @@ export function MapFormField({
 
   const mapCallback = (theFeatures: GeoJSONFeatureCollection) => {
     setDrawnFeatures(theFeatures)
-    setShowMap(false)
-
     form.setFieldValue(field.name, theFeatures)
   }
 
-  // get the current GPS location if we're about to show the map and
-  // we have a default location
-  if (showMap) {
-    if (center[0] === 0 && center[1] === 0) {
-      Geolocation.getCurrentPosition().then((result) => {
-        setCenter([result.coords.longitude, result.coords.latitude])
-      })
-    }
+  // get the current GPS location if don't know the map center
+  if (center[0] === 0 && center[1] === 0) {
+    Geolocation.getCurrentPosition().then((result) => {
+      setCenter([result.coords.longitude, result.coords.latitude])
+    })
   }
 
   let valueText = ''
@@ -108,37 +101,24 @@ export function MapFormField({
         break
     }
   }
-
-  // only show the map if we have a center
-  if (showMap && center[0] !== 0 && center[1] !== 0) {
-    //window.scrollTo(0, 0)
-    return (
-      <div>
-        <MapWrapper
-          featureType={props.featureType}
-          features={drawnFeatures}
-          zoom={props.zoom}
-          center={center}
-          callbackFn={mapCallback}
-          geoTiff={props.geoTiff}
-          projection={props.projection}
-        />
-      </div>
-    )
-  } else {
-    return (
-      <div>
-        <Button
-          variant='contained'
-          className='map-button'
-          onClick={() => setShowMap(true)}
-        >
-          {props.label ? props.label : 'Get ' + props.featureType + ' from Map'}
-        </Button>
-        <div>{valueText}</div>
-      </div>
-    )
-  }
+  return (
+    <div>
+      <MapWrapper
+        label={
+          props.label ? props.label : 'Get ' + props.featureType + ' from Map'
+        }
+        featureType={props.featureType}
+        features={drawnFeatures}
+        zoom={props.zoom}
+        center={center}
+        callbackFn={mapCallback}
+        geoTiff={props.geoTiff}
+        projection={props.projection}
+      />
+      <p>{valueText}</p>
+    </div>
+  )
+ 
 }
 
 //

@@ -32,18 +32,18 @@ import { Draw, Modify } from 'ol/interaction'
 import OSM from 'ol/source/OSM'
 import { Feature } from 'ol'
 import { transform } from 'ol/proj'
-import proj4 from 'proj4';
+import proj4 from 'proj4'
 import { register } from 'ol/proj/proj4'
 import Button, { ButtonProps } from '@mui/material/Button'
+import CloseIcon from '@mui/icons-material/Close'
 import GeoJSON from 'ol/format/GeoJSON'
 
-
 // define some EPSG codes - these are for two sample images
-// TODO: we need to have a better way to include a useful set or allow 
+// TODO: we need to have a better way to include a useful set or allow
 // them to be defined by a project
 // e.g. https://www.npmjs.com/package/epsg-index
-// or maybe https://github.com/matafokka/geotiff-geokeys-to-proj4 allows us 
-// to get things from the image? 
+// or maybe https://github.com/matafokka/geotiff-geokeys-to-proj4 allows us
+// to get things from the image?
 proj4.defs('EPSG:32636', '+proj=utm +zone=36 +datum=WGS84 +units=m +no_defs')
 proj4.defs(
   'EPSG:28354',
@@ -51,9 +51,9 @@ proj4.defs(
 )
 register(proj4)
 
-
 type FeaturesType = Feature<any>[] | undefined
 interface MapProps extends ButtonProps {
+  label: string
   features: any
   geoTiff?: string
   projection?: string
@@ -64,29 +64,20 @@ interface MapProps extends ButtonProps {
 }
 
 import { GeoJSONFeatureCollection } from 'ol/format/GeoJSON'
+import { AppBar, Dialog, IconButton, Toolbar, Typography } from '@mui/material'
 
 const styles = {
-  mapInputWidget: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    height: '100vh',
-    width: '100%',
-    display: 'grid',
-    gridTemplateRows: '1fr 100px',
-    zIndex: 100
-  },
   mapContainer: {
-    gridRow: 1
+    height: '90%'
   },
   mapSubmitButton: {
-    gridRow: 2,
-    backgroundColor: '#fff'
+    height: '10%'
   }
 } as const
 
 function MapWrapper(props: MapProps) {
   // set intial state
+  const [mapOpen, setMapOpen] = useState<boolean>(false)
   const [map, setMap] = useState<Map | undefined>()
   const [featuresLayer, setFeaturesLayer] =
     useState<VectorLayer<VectorSource<any>>>()
@@ -122,7 +113,7 @@ function MapWrapper(props: MapProps) {
         })
         tileLayer = new WebGLTileLayer({ source: geoTIFFSource })
         const viewOptions = await geoTIFFSource.getView()
-        // if the geoTiff doesn't have projection info we 
+        // if the geoTiff doesn't have projection info we
         // need to set it from the props or it will default to EPSG:3857
         // can't see a way to test the geoTIFF image so we just set the
         // projection if it has been passed in via the props
@@ -215,22 +206,7 @@ function MapWrapper(props: MapProps) {
     [setFeaturesLayer]
   )
 
-  // initialize map on first render
-  useEffect(() => {
-    // don't do this if we have already made a map
-    if (!map) {
-      // create and add vector source layer containing the passed in features
-      if (mapElement.current) {
-        // create map
-        createMap(mapElement.current, props).then((theMap: Map) => {
-          addDrawInteraction(theMap, props)
-          setMap(theMap)
-        })
-      }
-    }
-  }, [map, createMap, addDrawInteraction, props])
-
-  const submitAction = () => {
+  const handleClose = () => {
     if (featuresLayer) {
       const features = featuresLayer.getSource().getFeatures()
 
@@ -244,24 +220,78 @@ function MapWrapper(props: MapProps) {
         props.callbackFn(geojFeatures)
         featuresLayer.getSource().clear()
       }
+      // TODO: should we delete the map element? Memory?
+      setMap(undefined)
+    }
+    setMapOpen(false)
+  }
+
+  const handleClickOpen = () => {
+    // only show the map if we have a center
+    if (props.center[0] !== 0 && props.center[1] !== 0) {
+      setMapOpen(true)
+    } else {
+      console.log('no center defined')
+    }
+    // TODO: should do something to inform the user here...
+  }
+
+  const refCallback = (element: HTMLElement) => {
+    if (!map) {
+      // create map
+      createMap(element, props).then((theMap: Map) => {
+        addDrawInteraction(theMap, props)
+        setMap(theMap)
+      })
+    } else {
+      map.setTarget(element)
     }
   }
 
   // render component
   return (
-    <div style={styles.mapInputWidget}>
-      <div ref={mapElement} style={styles.mapContainer} />
-      <Button
-        type='button'
-        variant='outlined'
-        color='primary'
-        style={styles.mapSubmitButton}
-        onClick={submitAction}
-      >
-        Submit
+    <div>
+      <Button variant='outlined' onClick={handleClickOpen}>
+        {props.label}
       </Button>
+
+      <Dialog fullScreen open={mapOpen} onClose={handleClose}>
+        <AppBar sx={{ position: 'relative' }}>
+          <Toolbar>
+            <IconButton
+              edge='start'
+              color='inherit'
+              onClick={handleClose}
+              aria-label='close'
+            >
+              <CloseIcon />
+            </IconButton>
+            <Typography sx={{ ml: 2, flex: 1 }} variant='h6' component='div'>
+              {props.label}
+            </Typography>
+            <Button autoFocus color='inherit' onClick={handleClose}>
+              save
+            </Button>
+          </Toolbar>
+        </AppBar>
+
+        <div ref={refCallback} style={styles.mapContainer} />
+      </Dialog>
     </div>
   )
 }
 
 export default MapWrapper
+
+// <div style={styles.mapInputWidget}>
+// <div ref={mapElement} style={styles.mapContainer} />
+// <Button
+//   type='button'
+//   variant='outlined'
+//   color='primary'
+//   style={styles.mapSubmitButton}
+//   onClick={submitAction}
+// >
+//   Submit
+// </Button>
+// </div>
