@@ -99,7 +99,7 @@ function MapWrapper(props: MapProps) {
         'EPSG:4326',
         props.projection || defaultMapProjection
       )
-      let tileLayer: TileLayer<any>
+      let tileLayer: any
       let view: View
 
       if (props.geoTiff) {
