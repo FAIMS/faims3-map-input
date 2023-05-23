@@ -48,7 +48,7 @@ const ExampleForm = () => {
             actions.setSubmitting(false)
         }}
       >
-        {(formProps: any[]) => (
+        {(formProps: any) => (
           <div id="demoformcontainer">
             <div id="theform">
                   <h1>Test Form</h1>
@@ -63,27 +63,27 @@ const ExampleForm = () => {
             <p>Specify center position and featureType: Point</p>
             <Field name="point" center={center} featureType="Point" component={MapFormField} />
             <p>Polygon with no specified center, uses current location, zoom set to 10</p>
-            <Field name="polygon" 
+            <Field name="polygon"
                 label="Polygon GeoTiff no Projection"
                 geoTiff={geoTiffNoProjection}
                 projection={geoTiffProjection}
-                featureType="Polygon" 
+                featureType="Polygon"
                 component={MapFormField} />
 
             <p>Linestring, no center defined.</p>
             <Field name="linestring" featureType="LineString" component={MapFormField} />
 
             <p>Linestring, basemap from remote URL, basemap defines projection, center defined.</p>
-            <Field name="gtlinestring" 
-                   label="Get Linestring with Geotiff" 
+            <Field name="gtlinestring"
+                   label="Get Linestring with Geotiff"
                    geoTiff={geoTiffURL}
                    center={geoTiffCenter}
                    featureType="LineString" component={MapFormField} />
 
             <p>Polygon, basemap from uploaded file</p>
-            <Field name="uploadedBasemap" 
-                   label="Use uploaded Basemap" 
-                   geoTiff={basemap.blob} 
+            <Field name="uploadedBasemap"
+                   label="Use uploaded Basemap"
+                   geoTiff={basemap.blob}
                    featureType="Polygon" component={MapFormField} />
 
 
