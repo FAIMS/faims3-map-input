@@ -27,6 +27,7 @@ import { Geolocation } from '@capacitor/geolocation'
 import type { GeoJSONFeatureCollection } from 'ol/format/GeoJSON'
 
 import { FieldProps } from 'formik'
+import { AlertError } from './Alert'
 export interface MapFieldProps extends FieldProps {
   label?: string
   featureType: 'Point' | 'Polygon' | 'LineString'
@@ -47,6 +48,9 @@ export function MapFormField({
   if (form.values[field.name]) {
     initialFeatures = form.values[field.name]
   }
+
+  const [isAlert, setIsAlert] = useState(false)
+  const [geoPositionError, setGeoPositionError] = useState(false)
 
   const [drawnFeatures, setDrawnFeatures] =
     useState<GeoJSONFeatureCollection>(initialFeatures)
@@ -75,11 +79,22 @@ export function MapFormField({
     form.setFieldValue(field.name, theFeatures)
   }
 
+  const handleAlertClose = () => {
+    setIsAlert(false)
+  }
+
   // get the current GPS location if don't know the map center
   if (center[0] === 0 && center[1] === 0) {
-    Geolocation.getCurrentPosition().then((result) => {
-      setCenter([result.coords.longitude, result.coords.latitude])
-    })
+    Geolocation.getCurrentPosition()
+      .then((result) => {
+        setCenter([result.coords.longitude, result.coords.latitude])
+      })
+      .catch((err) => {
+        if (!isAlert && !geoPositionError) {
+          setIsAlert(true)
+          setGeoPositionError(true)
+        }
+      })
   }
 
   let valueText = ''
@@ -103,22 +118,28 @@ export function MapFormField({
   }
   return (
     <div>
-      <MapWrapper
-        label={
-          props.label ? props.label : 'Get ' + props.featureType + ' from Map'
-        }
-        featureType={props.featureType}
-        features={drawnFeatures}
-        zoom={props.zoom}
-        center={center}
-        callbackFn={mapCallback}
-        geoTiff={props.geoTiff}
-        projection={props.projection}
-      />
-      <p>{valueText}</p>
+      {isAlert && (
+        <div className="alertErrorWrapper">
+          <AlertError isOpen={isAlert} handleClose={handleAlertClose} />
+        </div>
+      )}
+      <div>
+        <MapWrapper
+          label={
+            props.label ? props.label : 'Get ' + props.featureType + ' from Map'
+          }
+          featureType={props.featureType}
+          features={drawnFeatures}
+          zoom={props.zoom}
+          center={center}
+          callbackFn={mapCallback}
+          geoTiff={props.geoTiff}
+          projection={props.projection}
+        />
+        <p>{valueText}</p>
+      </div>
     </div>
   )
- 
 }
 
 //
