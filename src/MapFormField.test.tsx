@@ -1,33 +1,47 @@
 /**
  * @jest-environment jsdom
  */
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { act } from 'react-dom/test-utils';
+import { fireEvent, screen } from '@testing-library/react'
 
-import { render, screen, fireEvent } from '@testing-library/react'
-import React from 'react'
-// import { Field, Form, Formik } from 'formik';
-import { FormikProps, FormikState } from 'formik'
+import { FieldMetaProps, FormikProps, FormikState } from 'formik'
 import { MapFormField } from '.'
 
-it('renders as a button', () => {
+let container;
+
+beforeEach(() => {
+  container = document.createElement('div');
+  document.body.appendChild(container);
+});
+
+afterEach(() => {
+  document.body.removeChild(container);
+  container = null;
+});
+
+
+it('renders as a button', async () => {
   const props = {
     value: {},
     name: 'point',
     onChange: (x: any) => x,
     onBlur: (x: any) => x,
   }
-  // const fprops: FormikProps<any> = null
-  // const fstate: FormikState<any> = null
+  const fprops: FormikProps<any> = {values: {}}
+  const fstate: FieldMetaProps<any> = null
 
-  // render(
-  //   <MapFormField
-  //     field={props}
-  //     featureType='Point'
-  //     form={fprops}
-  //     meta={fstate}
-  //   />
-  // )
-  expect(screen.getByText('Get Point'))
-  expect(screen.getByRole('button'))
+  await act(() => {
+    ReactDOM.createRoot(container).render(
+    <MapFormField
+      field={props}
+      featureType='Point'
+      form={fprops}
+      meta={fstate} 
+    />)});
+
+  expect(screen.getByRole('button', {name: 'Get Point'}))
 })
 
 it('creates a map when the button is pressed', async () => {
@@ -38,19 +52,24 @@ it('creates a map when the button is pressed', async () => {
     onBlur: jest.fn()
   }
   window.scrollTo = jest.fn()
-  // const fprops: FormikProps<any> = {}
-  // const fstate: FormikState<any> = {}
+  const fprops: FormikProps<any> = {values: {}}
+  const fstate: FieldMetaProps<any> = null
 
-  // render(
-  //   <MapFormField
-  //     field={props}
-  //     featureType='Point'
-  //     form={fprops}
-  //     meta={fstate}
-  //   />
-  // )
-  // fireEvent.click(screen.getByRole('button'))
-  expect(document.querySelector('.ol-viewport'))
+  await act(() => {
+    ReactDOM.createRoot(container).render(
+    <MapFormField
+      field={props}
+      featureType='Point'
+      form={fprops}
+      meta={fstate}
+    />)});
+
+  const button = container.querySelector('button');
+
+  await act(() => {
+    fireEvent.click(button)
+  });
+  expect(container.querySelector('.ol-viewport'))
 })
 
 
